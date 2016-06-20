@@ -13,25 +13,29 @@ function investigate(room, drone) {
     console.log(`investigatng room ${room}, with drone ${drone}`)
     return request('POST', `drone/${drone}/commands`, commands).then(response => {
       console.log(`Drone ${drone} response ${JSON.stringify(response)}`)
-      const connectedRooms = repsonse.exporeId
+      const connectedRooms = repsonse.exporeId.connections
       const writing = repsonse.readId
 
-      return {connectedRooms, writing, drone}
+      const payload = {connectedRooms, writing, drone}
+      console.log("\n\npayload", payload)
+      return payload
     })
 }
 
 function search (labyrinth, room, drone) {
   console.log(`Searching room ${room}...`)
-  console.log(`Labyrinth state ${JSON.stringify(labyrinth)}...`)
   labyrinth.roomsVisited.add(room)
+  console.log(`Labyrinth state ${JSON.stringify(labyrinth)}...`)
 
   return investigate(room, drone).then(result => {
     console.log(`\nInvestigation result ${result}`)
     labyrinth.availableDrones.push(result.finishedDrone)
     labyrinth.writings.push(result.writing)
     labyrinth.unSearchedRooms.push(...result.connectedRooms)
+    console.log(`Labyrinth state ${JSON.stringify(labyrinth)}...`)
+    console.log(labyrinth.unSearchedRooms.length > 0)
 
-    while(labyrinth.unSearchedRooms) {
+    while(labyrinth.unSearchedRooms.length > 0) {
       const nextRoom = labyrinth.unSearchedRooms.shift()
       console.log(`Trying room ${nextRoom}...`)
 
@@ -47,7 +51,6 @@ function search (labyrinth, room, drone) {
 
     return writings
   })
-
 }
 
 exports.search = search
