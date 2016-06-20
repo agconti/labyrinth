@@ -1,0 +1,23 @@
+{
+  "name": "labyrinth",
+  "version": "0.1.0",
+  "description": "Discovering the writing on the walls of Jupiter's labyrinths.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agconti/labyrinth.git"
+  },
+  "author": "Andrew Conti <agc11d@gmail.com> (agconti.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/agconti/labyrinth/issues"
+  },
+  "homepage": "https://github.com/agconti/labyrinth#readme",
+  "dependencies": {
+    "request": "^2.72.0",
+    "uuid": "^2.0.2"
+  }
+}
