@@ -1,6 +1,6 @@
 'use strict'
 
-export class Labyrinth {
+class Labyrinth {
   constructor() {
     this.roomsVisited = new Set()
     this.unSearchedRooms = []
@@ -8,3 +8,5 @@ export class Labyrinth {
     this.writings = []
   }
 }
+
+exports.Labyrinth = Labyrinth

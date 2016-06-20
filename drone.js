@@ -1,32 +1,8 @@
 'use strict'
+const uuid = require('uuid').v4
+const request = require('./lib/networking')
 
-async function search (labyrinth, room, drone) {
-  console.log(`Searching room ${room}...`)
-  console.log(`Labyrinth state ${JSON.stringify(labyrinth)}...`)
-  labyrinth.roomsVisited.add(room)
-  const {connectedRooms, writing, finishedDrone} = await investigate(room, drone)
-
-  labyrinth.availableDrones.push(finishedDrone)
-  labyrinth.writings.push(writing)
-  labyrinth.unSearchedRooms.push(...connectedRooms)
-  while(labyrinth.unSearchedRooms) {
-    const nextRoom = labyrinth.unSearchedRooms.shift()
-    console.log(`Trying room ${nextRoom}...`)
-
-    if (labyrinth.roomsVisited.has(nextRoom)) {
-      console.log(`Room ${nextRoom} has already been visited`)
-      return
-    }
-
-    // need some way to handel all 5?
-    const idleDrone = labyrinth.availableDrones.shift()
-    search(nextRoom, idleDrone)
-  }
-
-  return writings
-}
-
-async function investigate(room, drone) {
+function investigate(room, drone) {
     const exporeId = uuid()
     const readId = uuid()
     const commands = {
@@ -35,11 +11,44 @@ async function investigate(room, drone) {
     }
 
     console.log(`investigatng room ${room}, with drone ${drone}`)
-    const repsonse = await request('POST', `/drone/${drone}/commands`, commands)
-    const connectedRooms = repsonse.exporeId
-    const writing = repsonse.readId
-    return {connectedRooms, writing, drone}
+    return request('POST', `drone/${drone}/commands`, commands).then(response => {
+      console.log(`Drone ${drone} response ${JSON.stringify(response)}`)
+      const connectedRooms = repsonse.exporeId
+      const writing = repsonse.readId
+
+      return {connectedRooms, writing, drone}
+    })
 }
 
-module.exports.search = search
-module.exports.investigate = investigate
+function search (labyrinth, room, drone) {
+  console.log(`Searching room ${room}...`)
+  console.log(`Labyrinth state ${JSON.stringify(labyrinth)}...`)
+  labyrinth.roomsVisited.add(room)
+
+  return investigate(room, drone).then(result => {
+    console.log(`\nInvestigation result ${result}`)
+    labyrinth.availableDrones.push(result.finishedDrone)
+    labyrinth.writings.push(result.writing)
+    labyrinth.unSearchedRooms.push(...result.connectedRooms)
+
+    while(labyrinth.unSearchedRooms) {
+      const nextRoom = labyrinth.unSearchedRooms.shift()
+      console.log(`Trying room ${nextRoom}...`)
+
+      if (labyrinth.roomsVisited.has(nextRoom)) {
+        console.log(`Room ${nextRoom} has already been visited`)
+        return
+      }
+
+      // need some way to handel all 5?
+      const idleDrone = labyrinth.availableDrones.shift()
+      search(nextRoom, idleDrone)
+    }
+
+    return writings
+  })
+
+}
+
+exports.search = search
+exports.investigate = investigate
