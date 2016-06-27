@@ -4,7 +4,6 @@ const constructMessage = require('./writings')
 const Labyrinth = require('./Labyrinth').Labyrinth
 const labyrinth = new Labyrinth()
 
-console.log(labyrinth)
 request('GET', 'start')
    .then(data => {
      console.log('now to searching,', data)
@@ -12,7 +11,7 @@ request('GET', 'start')
    })
    .then(writings => {
      console.log('on to message writing,', writings)
-     return constructMessage(writings)
+     return constructMessage(labyrinth.writings)
    })
    .then(message => request('POST', 'report'))
    .then(response => console.log(response))

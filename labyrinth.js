@@ -1,11 +1,11 @@
 'use strict'
+const writings = require('./writings')
 
 class Labyrinth {
   constructor() {
     this.roomsVisited = new Set()
-    this.unSearchedRooms = []
+    this.writings = new Writings()
     this.availableDrones = []
-    this.writings = []
   }
 }
 
